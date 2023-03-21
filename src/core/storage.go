@@ -1,9 +1,9 @@
 package core
 
 type Node struct {
-	Lseq   int64
-	Parent int64
-	Value  []byte
+	Lseq   int64  `json:"lseq"`
+	Parent int64  `json:"ref"`
+	Value  []byte `json:"content"`
 }
 
 type Storage interface {
