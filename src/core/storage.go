@@ -1,7 +1,7 @@
 package core
 
 type Node struct {
-	Lseq   int64  `json:"lseq"`
+	Lseq   int64  `json:"lseq,omitempty"`
 	Parent int64  `json:"ref"`
 	Value  []byte `json:"content"`
 }

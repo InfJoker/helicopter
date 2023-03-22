@@ -14,25 +14,7 @@ type Rest struct {
 }
 
 func NewRest(storage core.Storage) *Rest {
-	rest := new(Rest)
-	rest.storage = storage
-	return rest
-}
-
-func (r *Rest) GetNodeChildren(c *gin.Context) {
-	lseq, err := strconv.ParseInt(c.Param("lseq"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "Invalid query parameters")
-		return
-	}
-
-	if lseq == 0 {
-		c.JSON(http.StatusForbidden, "Cannot retrieve children of the 0 node")
-		return
-	}
-
-	children, _ := r.storage.GetSubTreeNodes(lseq, lseq)
-	c.JSON(http.StatusOK, children)
+	return &Rest{storage: storage}
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {
@@ -51,19 +33,14 @@ func (r *Rest) GetNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, nodes)
 }
 
-type PostNodesRequestBody struct {
-	Ref     int64  `json:"ref"`
-	Content []byte `json:"content"`
-}
-
 func (r *Rest) AddNode(c *gin.Context) {
-	var requestBody PostNodesRequestBody
+	var requestBody core.Node
 
 	if err := c.BindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid request body or parameters")
 	}
 
-	node, _ := r.storage.CreateNode(requestBody.Ref, requestBody.Content)
+	node, _ := r.storage.CreateNode(requestBody.Parent, requestBody.Value)
 
 	c.JSON(http.StatusCreated, node)
 }

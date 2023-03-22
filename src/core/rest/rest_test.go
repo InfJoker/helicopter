@@ -68,67 +68,7 @@ func (ms *mockStorage) CreateNode(ref int64, content []byte) (core.Node, error) 
 	return node, nil
 }
 
-func TestRest_GetNodeChildren(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-	// Create a new router and rest instance
-	mockStorage := newMockStorage()
-	restAPI := NewRest(mockStorage)
-
-	// Define the test cases
-	testCases := []struct {
-		name           string
-		lseq           string
-		expectedStatus int
-		expectedBody   []byte
-	}{
-		{
-			name:           "Invalid lseq",
-			lseq:           "0",
-			expectedStatus: http.StatusForbidden,
-			expectedBody:   []byte(`"Cannot retrieve children of the 0 node"`),
-		},
-		{
-			name:           "Valid lseq",
-			lseq:           "2",
-			expectedStatus: http.StatusOK,
-			expectedBody: func() []byte {
-				children, _ := json.Marshal([]*core.Node{
-					{
-						Lseq:   3,
-						Parent: 2,
-						Value:  []byte("child3"),
-					},
-				})
-				return children
-			}(),
-		},
-		{
-			name:           "Invalid parameter lseq",
-			lseq:           "Invalid",
-			expectedStatus: http.StatusBadRequest,
-			expectedBody:   []byte(`"Invalid query parameters"`),
-		},
-	}
-
-	// Run the test cases
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Create a new request and recorder
-			rec := httptest.NewRecorder()
-
-			// Bind the request to a gin context and call the handler
-			c, _ := gin.CreateTestContext(rec)
-			c.Params = append(c.Params, gin.Param{Key: "lseq", Value: tc.lseq})
-			restAPI.GetNodeChildren(c)
-
-			// Check the response
-			assert.Equal(t, tc.expectedStatus, rec.Code)
-			assert.Equal(t, tc.expectedBody, rec.Body.Bytes())
-		})
-	}
-}
-
-func TestRest_GetNodes(t *testing.T) {
+func TestGetNodes(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	mockStorage := newMockStorage()
 	restAPI := NewRest(mockStorage)
@@ -216,9 +156,9 @@ func TestAddNode(t *testing.T) {
 		},
 		{
 			name: "create node success",
-			reqBody: PostNodesRequestBody{
-				Ref:     1,
-				Content: []byte("test content"),
+			reqBody: core.Node{
+				Parent: 1,
+				Value:  []byte("test content"),
 			},
 			expected: http.StatusCreated,
 		},
