@@ -38,6 +38,7 @@ func (r *Rest) AddNode(c *gin.Context) {
 
 	if err := c.BindJSON(&requestBody); err != nil {
 		c.JSON(http.StatusBadRequest, "Invalid request body or parameters")
+		return
 	}
 
 	node, _ := r.storage.CreateNode(requestBody.Parent, requestBody.Value)
