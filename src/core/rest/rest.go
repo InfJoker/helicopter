@@ -11,10 +11,22 @@ import (
 
 type Rest struct {
 	storage core.Storage
+	router  *gin.Engine
 }
 
 func NewRest(storage core.Storage) *Rest {
-	return &Rest{storage: storage}
+	rest := &Rest{
+		storage: storage,
+		router:  gin.Default(),
+	}
+	rest.router.GET("/nodes", rest.GetNodes)
+	rest.router.POST("/nodes", rest.AddNode)
+
+	return rest
+}
+
+func (r *Rest) Run(host string) error {
+	return r.router.Run(host)
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {
