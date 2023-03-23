@@ -45,12 +45,12 @@ func (s *storage) GetSubTreeNodes(parent, fromLseq int64) ([]core.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	res := make([]core.Node, 0)
-	s.getSubTreeNodesRec(parent, fromLseq, res)
+	s.getSubTreeNodesRec(parent, fromLseq, &res)
 	return res, nil
 }
 
 func (s *storage) getSubTreeNodesRec(
-	parent, fromLseq int64, res []core.Node,
+	parent, fromLseq int64, res *[]core.Node,
 ) {
 	children, is_parent := s.tree[parent]
 	if !is_parent {
@@ -58,7 +58,7 @@ func (s *storage) getSubTreeNodesRec(
 	}
 	for _, child := range children {
 		if child > fromLseq {
-			res = append(res, core.Node{
+			*res = append(*res, core.Node{
 				Lseq:   child,
 				Value:  s.values[child],
 				Parent: parent,
