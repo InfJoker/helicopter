@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"helicopter/core"
+	"helicopter/internal/core"
 )
 
 type Rest struct {
