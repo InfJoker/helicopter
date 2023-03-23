@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
-	"helicopter/core"
+	"helicopter/internal/core"
 )
 
 type mockStorage struct {

@@ -3,7 +3,7 @@ package mockstorage
 import (
 	"sync"
 
-	"helicopter/core"
+	"helicopter/internal/core"
 )
 
 type storage struct {

@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"helicopter/core/mockstorage"
-	"helicopter/core/rest"
+	"helicopter/internal/mockstorage"
+	"helicopter/internal/rest"
 )
 
 func main() {
