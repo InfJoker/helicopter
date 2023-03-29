@@ -68,7 +68,7 @@ func nodes2pbNodes(nodes []core.Node) []*pb.Node {
 }
 
 func (g *helicopterServer) GetNodes(ctx context.Context, req *pb.GetNodesRequest) (*pb.GetNodesResponse, error) {
-	if req.Root == 0 {
+	if req.Root == "0" {
 		err := status.Error(codes.PermissionDenied, "Root must be non-zero")
 		return nil, err
 	}

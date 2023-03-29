@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -24,23 +25,23 @@ func newMockStorage() *mockStorage {
 	mockStorage := new(mockStorage)
 	mockStorage.Nodes = []core.Node{
 		{
-			Lseq:   0,
-			Parent: -1,
+			Lseq:   "0",
+			Parent: "-1",
 			Value:  []byte("root"),
 		},
 		{
-			Lseq:   1,
-			Parent: 0,
+			Lseq:   "1",
+			Parent: "0",
 			Value:  []byte("child1"),
 		},
 		{
-			Lseq:   2,
-			Parent: 0,
+			Lseq:   "2",
+			Parent: "0",
 			Value:  []byte("child2"),
 		},
 		{
-			Lseq:   3,
-			Parent: 2,
+			Lseq:   "3",
+			Parent: "2",
 			Value:  []byte("child3"),
 		},
 	}
@@ -52,7 +53,7 @@ func newMockStorage() *mockStorage {
 	return mockStorage
 }
 
-func (ms *mockStorage) GetSubTreeNodes(ctx context.Context, root, last int64) ([]core.Node, error) {
+func (ms *mockStorage) GetSubTreeNodes(ctx context.Context, root, last string) ([]core.Node, error) {
 	ms.CalledMap["GetSubTreeNodes"] += 1
 
 	var res []core.Node
@@ -64,10 +65,10 @@ func (ms *mockStorage) GetSubTreeNodes(ctx context.Context, root, last int64) ([
 	return res, nil
 }
 
-func (ms *mockStorage) CreateNode(ctx context.Context, ref int64, content []byte) (core.Node, error) {
+func (ms *mockStorage) CreateNode(ctx context.Context, ref string, content []byte) (core.Node, error) {
 	ms.CalledMap["CreateNode"] += 1
 	newNode := core.Node{
-		Lseq:   ms.NextLseq,
+		Lseq:   strconv.FormatInt(ms.NextLseq, 10),
 		Parent: ref,
 		Value:  content,
 	}
@@ -100,35 +101,19 @@ func TestGetNodes(t *testing.T) {
 			expectedBody: func() []byte {
 				nodes, _ := json.Marshal([]*core.Node{
 					{
-						Lseq:   2,
-						Parent: 0,
+						Lseq:   "2",
+						Parent: "0",
 						Value:  []byte("child2"),
 					},
 					{
-						Lseq:   3,
-						Parent: 2,
+						Lseq:   "3",
+						Parent: "2",
 						Value:  []byte("child3"),
 					},
 				})
 				return nodes
 			}(),
 			expectedCalledMap: map[string]int{"GetSubTreeNodes": 1},
-		},
-		{
-			name:              "Invalid query parameters lseq",
-			root:              "0",
-			last:              "Invalid",
-			expectedStatus:    http.StatusBadRequest,
-			expectedBody:      []byte(`"Invalid query parameters"`),
-			expectedCalledMap: map[string]int{},
-		},
-		{
-			name:              "Invalid query parameters root",
-			root:              "Invalid",
-			last:              "1",
-			expectedStatus:    http.StatusBadRequest,
-			expectedBody:      []byte(`"Invalid query parameters"`),
-			expectedCalledMap: map[string]int{},
 		},
 	}
 
@@ -165,13 +150,13 @@ func TestAddNode(t *testing.T) {
 	router.POST("/nodes", rest.AddNode)
 
 	newNode := core.Node{
-		Parent: 1,
+		Parent: "1",
 		Value:  []byte(`"test content"`),
 	}
 
 	responseNode := core.Node{
-		Parent: 1,
-		Lseq:   4,
+		Parent: "1",
+		Lseq:   "4",
 		Value:  []byte(`"test content"`),
 	}
 
