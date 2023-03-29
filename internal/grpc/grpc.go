@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
 	pb "helicopter/generated/proto"
+	"helicopter/internal/config"
 	"helicopter/internal/core"
 
 	"google.golang.org/grpc"
@@ -15,7 +17,8 @@ import (
 )
 
 type Grpc struct {
-	server *helicopterServer
+	address string
+	server  *helicopterServer
 }
 
 type helicopterServer struct {
@@ -31,23 +34,33 @@ func newServer(storage core.Storage) *helicopterServer {
 	return server
 }
 
-func NewGrpc(storage core.Storage) *Grpc {
+func NewGrpc(cfg config.Config, storage core.Storage) *Grpc {
+	host, port := "localhost", 1337
+	if cfg.GrpcServer.Host != "" {
+		host = cfg.GrpcServer.Host
+	}
+	if cfg.GrpcServer.Port != 0 {
+		port = int(cfg.GrpcServer.Port)
+	}
+	address := fmt.Sprintf("%s:%d", host, port)
+
 	g := new(Grpc)
 	g.server = newServer(storage)
+	g.address = address
 	return g
 }
 
-func (g *Grpc) Run(host string) error {
-	lis, err := net.Listen("tcp", host)
+func (g *Grpc) Run() error {
+	lis, err := net.Listen("tcp", g.address)
 	if err != nil {
-		log.Fatalf("Couldn't start listening on host \"%s\": %v", host, err)
+		log.Fatalf("Couldn't start listening on address \"%s\": %v", g.address, err)
 	}
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterHelicopterServer(grpcServer, g.server)
 	reflection.Register(grpcServer)
 
-	log.Print("Running rpc server")
+	log.Print("Running rpc server at ", g.address)
 	return grpcServer.Serve(lis)
 }
 
