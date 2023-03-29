@@ -41,7 +41,7 @@ func (r *Rest) GetNodes(c *gin.Context) {
 		return
 	}
 
-	nodes, _ := r.storage.GetSubTreeNodes(root, last)
+	nodes, _ := r.storage.GetSubTreeNodes(c.Request.Context(), root, last)
 	c.JSON(http.StatusOK, nodes)
 }
 
@@ -53,7 +53,7 @@ func (r *Rest) AddNode(c *gin.Context) {
 		return
 	}
 
-	node, _ := r.storage.CreateNode(requestBody.Parent, requestBody.Value)
+	node, _ := r.storage.CreateNode(c.Request.Context(), requestBody.Parent, requestBody.Value)
 
 	c.JSON(http.StatusCreated, node)
 }

@@ -1,6 +1,7 @@
 package mockstorage
 
 import (
+	"context"
 	"sync"
 
 	"helicopter/internal/core"
@@ -27,7 +28,7 @@ func NewStorage(replicaId int64) (*storage, error) {
 	}, nil
 }
 
-func (s *storage) CreateNode(parent int64, value []byte) (core.Node, error) {
+func (s *storage) CreateNode(ctx context.Context, parent int64, value []byte) (core.Node, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	s.seq += 1
@@ -41,7 +42,7 @@ func (s *storage) CreateNode(parent int64, value []byte) (core.Node, error) {
 	}, nil
 }
 
-func (s *storage) GetSubTreeNodes(parent, fromLseq int64) ([]core.Node, error) {
+func (s *storage) GetSubTreeNodes(ctx context.Context, parent, fromLseq int64) ([]core.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 	res := make([]core.Node, 0)

@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -51,7 +52,7 @@ func newMockStorage() *mockStorage {
 	return mockStorage
 }
 
-func (ms *mockStorage) GetSubTreeNodes(root, last int64) ([]core.Node, error) {
+func (ms *mockStorage) GetSubTreeNodes(ctx context.Context, root, last int64) ([]core.Node, error) {
 	ms.CalledMap["GetSubTreeNodes"] += 1
 
 	var res []core.Node
@@ -63,7 +64,7 @@ func (ms *mockStorage) GetSubTreeNodes(root, last int64) ([]core.Node, error) {
 	return res, nil
 }
 
-func (ms *mockStorage) CreateNode(ref int64, content []byte) (core.Node, error) {
+func (ms *mockStorage) CreateNode(ctx context.Context, ref int64, content []byte) (core.Node, error) {
 	ms.CalledMap["CreateNode"] += 1
 	newNode := core.Node{
 		Lseq:   ms.NextLseq,
@@ -143,6 +144,7 @@ func TestGetNodes(t *testing.T) {
 			c, _ := gin.CreateTestContext(rec)
 			c.Params = append(c.Params, gin.Param{Key: "root", Value: tt.root})
 			c.Params = append(c.Params, gin.Param{Key: "last", Value: tt.last})
+			c.Request, _ = http.NewRequest(http.MethodGet, "/nodes", bytes.NewBuffer([]byte("")))
 			restAPI.GetNodes(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)

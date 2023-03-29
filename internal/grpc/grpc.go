@@ -72,7 +72,7 @@ func (g *helicopterServer) GetNodes(ctx context.Context, req *pb.GetNodesRequest
 		err := status.Error(codes.PermissionDenied, "Root must be non-zero")
 		return nil, err
 	}
-	nodes, err := g.storage.GetSubTreeNodes(req.Root, req.Last)
+	nodes, err := g.storage.GetSubTreeNodes(ctx, req.Root, req.Last)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Something broke 😿")
 	}
@@ -81,7 +81,7 @@ func (g *helicopterServer) GetNodes(ctx context.Context, req *pb.GetNodesRequest
 }
 
 func (g *helicopterServer) AddNode(ctx context.Context, req *pb.AddNodeRequest) (*pb.AddNodeResponse, error) {
-	node, err := g.storage.CreateNode(req.Parent, req.Content)
+	node, err := g.storage.CreateNode(ctx, req.Parent, req.Content)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Something broke 😿")
 	}
