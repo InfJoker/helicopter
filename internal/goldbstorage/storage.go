@@ -66,7 +66,10 @@ func (s *storage) preorder(ctx context.Context, parentStr, fromLseqStr string, r
 			Parent: item.Key,
 			Value:  []byte(item.Value),
 		})
-		s.preorder(ctx, child, fromLseqStr, res)
+		err = s.preorder(ctx, child, fromLseqStr, res)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
