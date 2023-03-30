@@ -22,7 +22,7 @@ func NewRest(cfg config.Config, storage core.Storage) *Rest {
 		host = cfg.HttpServer.Host
 	}
 	if cfg.HttpServer.Port != 0 {
-		port = int(cfg.HttpServer.Port)
+		port = cfg.HttpServer.Port
 	}
 	address := fmt.Sprintf("%s:%d", host, port)
 

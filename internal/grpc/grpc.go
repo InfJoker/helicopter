@@ -40,7 +40,7 @@ func NewGrpc(cfg config.Config, storage core.Storage) *Grpc {
 		host = cfg.GrpcServer.Host
 	}
 	if cfg.GrpcServer.Port != 0 {
-		port = int(cfg.GrpcServer.Port)
+		port = cfg.GrpcServer.Port
 	}
 	address := fmt.Sprintf("%s:%d", host, port)
 
