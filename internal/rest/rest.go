@@ -2,7 +2,6 @@ package rest
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -30,18 +29,9 @@ func (r *Rest) Run(host string) error {
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {
-	root, err := strconv.ParseInt(c.Param("root"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "Invalid query parameters")
-		return
-	}
-	last, err := strconv.ParseInt(c.Param("last"), 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, "Invalid query parameters")
-		return
-	}
+	root, last := c.Param("root"), c.Param("last")
 
-	nodes, _ := r.storage.GetSubTreeNodes(root, last)
+	nodes, _ := r.storage.GetSubTreeNodes(c.Request.Context(), root, last)
 	c.JSON(http.StatusOK, nodes)
 }
 
@@ -53,7 +43,7 @@ func (r *Rest) AddNode(c *gin.Context) {
 		return
 	}
 
-	node, _ := r.storage.CreateNode(requestBody.Parent, requestBody.Value)
+	node, _ := r.storage.CreateNode(c.Request.Context(), requestBody.Parent, requestBody.Value)
 
 	c.JSON(http.StatusCreated, node)
 }

@@ -1,6 +1,8 @@
 package mockstorage
 
 import (
+	"context"
+	"strconv"
 	"sync"
 
 	"helicopter/internal/core"
@@ -18,6 +20,14 @@ func genLseq(seq, replicaId int64) int64 {
 	return (seq << 24) + replicaId
 }
 
+func toString(key int64) string {
+	return strconv.FormatInt(key, 10)
+}
+
+func fromString(key string) (int64, error) {
+	return strconv.ParseInt(key, 10, 64)
+}
+
 func NewStorage(replicaId int64) (*storage, error) {
 	return &storage{
 		replicaId: replicaId,
@@ -27,23 +37,35 @@ func NewStorage(replicaId int64) (*storage, error) {
 	}, nil
 }
 
-func (s *storage) CreateNode(parent int64, value []byte) (core.Node, error) {
+func (s *storage) CreateNode(ctx context.Context, parentStr string, value []byte) (core.Node, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+	parent, err := fromString(parentStr)
+	if err != nil {
+		return core.Node{}, err
+	}
 	s.seq += 1
 	lseq := genLseq(s.seq, s.replicaId)
 	s.tree[parent] = append(s.tree[parent], lseq)
 	s.values[lseq] = value
 	return core.Node{
-		Lseq:   lseq,
+		Lseq:   toString(lseq),
 		Value:  value,
-		Parent: parent,
+		Parent: parentStr,
 	}, nil
 }
 
-func (s *storage) GetSubTreeNodes(parent, fromLseq int64) ([]core.Node, error) {
+func (s *storage) GetSubTreeNodes(ctx context.Context, parentStr, fromLseqStr string) ([]core.Node, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
+	parent, err := fromString(parentStr)
+	if err != nil {
+		return []core.Node{}, err
+	}
+	fromLseq, err := fromString(fromLseqStr)
+	if err != nil {
+		return []core.Node{}, err
+	}
 	res := make([]core.Node, 0)
 	s.getSubTreeNodesRec(parent, fromLseq, &res)
 	return res, nil
@@ -59,9 +81,9 @@ func (s *storage) getSubTreeNodesRec(
 	for _, child := range children {
 		if child > fromLseq {
 			*res = append(*res, core.Node{
-				Lseq:   child,
+				Lseq:   toString(child),
 				Value:  s.values[child],
-				Parent: parent,
+				Parent: toString(parent),
 			})
 		}
 		s.getSubTreeNodesRec(child, fromLseq, res)
