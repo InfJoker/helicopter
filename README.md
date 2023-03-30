@@ -5,7 +5,7 @@ Helicopter Server is a project for a causal tree access management system. The s
 ## Features
 
 - AddNode: Add a new node to the causal tree with the specified parent and content.
-- GetNodes: Retrieve a list of child nodes under a specified root node.
+- GetNodes: Retrieve a list of child nodes in a subtree under a specified root node.
 
 ## Prerequisites
 
