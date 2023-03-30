@@ -12,6 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # plugin which enables chatgpt as a codereviewer
       - uses: anc95/ChatGPT-CodeReview@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
