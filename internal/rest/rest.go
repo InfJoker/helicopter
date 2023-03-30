@@ -1,20 +1,33 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
+	"helicopter/internal/config"
 	"helicopter/internal/core"
 )
 
 type Rest struct {
+	address string
 	storage core.Storage
 	router  *gin.Engine
 }
 
-func NewRest(storage core.Storage) *Rest {
+func NewRest(cfg config.Config, storage core.Storage) *Rest {
+	host, port := "localhost", 8080
+	if cfg.HttpServer.Host != "" {
+		host = cfg.HttpServer.Host
+	}
+	if cfg.HttpServer.Port != 0 {
+		port = cfg.HttpServer.Port
+	}
+	address := fmt.Sprintf("%s:%d", host, port)
+
 	rest := &Rest{
+		address: address,
 		storage: storage,
 		router:  gin.Default(),
 	}
@@ -24,8 +37,8 @@ func NewRest(storage core.Storage) *Rest {
 	return rest
 }
 
-func (r *Rest) Run(host string) error {
-	return r.router.Run(host)
+func (r *Rest) Run() error {
+	return r.router.Run(r.address)
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {

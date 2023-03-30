@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 
+	"helicopter/internal/config"
 	"helicopter/internal/core"
 )
 
@@ -82,7 +83,7 @@ func (ms *mockStorage) CreateNode(ctx context.Context, ref string, content []byt
 func TestGetNodes(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	ms := newMockStorage()
-	restAPI := NewRest(ms)
+	restAPI := NewRest(config.Config{}, ms)
 
 	// Define the test cases
 	testCases := []struct {
@@ -145,7 +146,7 @@ func TestAddNode(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	ms := newMockStorage()
-	rest := NewRest(ms)
+	rest := NewRest(config.Config{}, ms)
 	router := gin.New()
 	router.POST("/nodes", rest.AddNode)
 
