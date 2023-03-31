@@ -82,7 +82,7 @@ func (s *storage) preorder(ctx context.Context, parentStr, fromLseqStr string, r
 		if err != nil {
 			return fmt.Errorf("Error decoding database reply, maybe got data corruption: %w", err)
 		}
-		if strings.Compare(child, fromLseqStr) > 0 {
+		if fromLseqStr == "0" || strings.Compare(child, fromLseqStr) > 0 {
 			*res = append(*res, core.Node{
 				Lseq:   child,
 				Parent: item.Key,
