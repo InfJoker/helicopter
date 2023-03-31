@@ -2,7 +2,10 @@ package goldbstorage
 
 import (
 	"context"
+	"fmt"
+	"helicopter/internal/config"
 	"helicopter/internal/core"
+	"strings"
 
 	"github.com/lodthe/goldb/db"
 	"go.uber.org/zap"
@@ -12,7 +15,8 @@ type storage struct {
 	conn *db.Connection
 }
 
-func NewStorage(logger *zap.Logger, address string) (*storage, error) {
+func NewStorage(logger *zap.Logger, cfg config.Config) (*storage, error) {
+	address := fmt.Sprintf("%s:%d", cfg.LseqDb.Host, cfg.LseqDb.Port)
 	conn, err := db.Open(
 		db.WithLogger(logger),
 		db.WithServerAddress(address),
@@ -48,7 +52,7 @@ func (s *storage) GetSubTreeNodes(ctx context.Context, parentStr, fromLseqStr st
 func (s *storage) preorder(ctx context.Context, parentStr, fromLseqStr string, res *[]core.Node) error {
 	options := []db.IterOption{
 		db.IterKeyEquals(parentStr),
-		db.IterFromVersion(db.NewVersion(fromLseqStr)),
+		// db.IterFromVersion(db.NewVersion(fromLseqStr)), If uncommented we are loosing children of old parents
 	}
 	iterator, err := s.conn.GetIterator(ctx, options...)
 	if err != nil {
@@ -61,11 +65,13 @@ func (s *storage) preorder(ctx context.Context, parentStr, fromLseqStr string, r
 			return err
 		}
 		child := item.Version.String()
-		*res = append(*res, core.Node{
-			Lseq:   child,
-			Parent: item.Key,
-			Value:  []byte(item.Value),
-		})
+		if strings.Compare(child, fromLseqStr) > 0 {
+			*res = append(*res, core.Node{
+				Lseq:   child,
+				Parent: item.Key,
+				Value:  []byte(item.Value),
+			})
+		}
 		err = s.preorder(ctx, child, fromLseqStr, res)
 		if err != nil {
 			return err
