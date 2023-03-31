@@ -2,6 +2,7 @@ package goldbstorage
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"helicopter/internal/config"
 	"helicopter/internal/core"
@@ -13,6 +14,14 @@ import (
 
 type storage struct {
 	conn *db.Connection
+}
+
+func encodeBase64(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
+}
+
+func decodeBase64(encodedString string) ([]byte, error) {
+	return base64.StdEncoding.DecodeString(encodedString)
 }
 
 func NewStorage(logger *zap.Logger, cfg config.Config) (*storage, error) {
@@ -29,14 +38,18 @@ func NewStorage(logger *zap.Logger, cfg config.Config) (*storage, error) {
 }
 
 func (s *storage) CreateNode(ctx context.Context, parent string, value []byte) (core.Node, error) {
-	triplet, err := s.conn.Put(ctx, parent, string(value))
+	triplet, err := s.conn.Put(ctx, parent, encodeBase64(value))
 	if err != nil {
 		return core.Node{}, err
+	}
+	gotValue, err := decodeBase64(triplet.Value)
+	if err != nil {
+		return core.Node{}, fmt.Errorf("Error decoding database reply, maybe got data corruption: %w", err)
 	}
 	return core.Node{
 		Lseq:   triplet.Version.String(),
 		Parent: triplet.Key,
-		Value:  []byte(triplet.Value),
+		Value:  gotValue,
 	}, nil
 }
 
@@ -65,11 +78,15 @@ func (s *storage) preorder(ctx context.Context, parentStr, fromLseqStr string, r
 			return err
 		}
 		child := item.Version.String()
+		gotValue, err := decodeBase64(item.Value)
+		if err != nil {
+			return fmt.Errorf("Error decoding database reply, maybe got data corruption: %w", err)
+		}
 		if strings.Compare(child, fromLseqStr) > 0 {
 			*res = append(*res, core.Node{
 				Lseq:   child,
 				Parent: item.Key,
-				Value:  []byte(item.Value),
+				Value:  gotValue,
 			})
 		}
 		err = s.preorder(ctx, child, fromLseqStr, res)
