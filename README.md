@@ -1,6 +1,6 @@
 # Helicopter Server
 
-Helicopter Server is a project for a causal tree access management system. The server handles the storage and retrieval of nodes in a causal tree, allowing you to easily manage and manipulate the data.
+Helicopter Server is a project for a causal tree access management system. The server handles the storage and retrieval of nodes in a causal tree, allowing you to easily manage and manipulate the data. In addition to gRPC, Helicopter Server also provides a RESTful API for interacting with the server. The API documentation is provided through Swagger.
 
 ## Features
 
@@ -9,7 +9,7 @@ Helicopter Server is a project for a causal tree access management system. The s
 
 ## Prerequisites
 
-- Go 1.18 compiler
+- Go 1.19 compiler
 - Protoc compiler
 - Go and gRPC plugins for Protoc
 
