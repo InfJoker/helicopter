@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -130,7 +131,7 @@ func TestGetNodes(t *testing.T) {
 			c, _ := gin.CreateTestContext(rec)
 			c.Params = append(c.Params, gin.Param{Key: "root", Value: tt.root})
 			c.Params = append(c.Params, gin.Param{Key: "last", Value: tt.last})
-			c.Request, _ = http.NewRequest(http.MethodGet, "/nodes", bytes.NewBuffer([]byte("")))
+			c.Request, _ = http.NewRequest(http.MethodGet, fmt.Sprintf("/nodes?root=%s&last=%s", tt.root, tt.last), bytes.NewBuffer([]byte("")))
 			restAPI.GetNodes(c)
 
 			assert.Equal(t, tt.expectedStatus, rec.Code)

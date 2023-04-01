@@ -42,7 +42,7 @@ func (r *Rest) Run() error {
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {
-	root, last := c.Param("root"), c.Param("last")
+	root, last := c.Query("root"), c.Query("last")
 
 	nodes, _ := r.storage.GetSubTreeNodes(c.Request.Context(), root, last)
 	c.JSON(http.StatusOK, nodes)

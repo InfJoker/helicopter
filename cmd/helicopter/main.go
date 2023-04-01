@@ -8,10 +8,13 @@ import (
 	"os"
 
 	"helicopter/internal/config"
+	"helicopter/internal/core"
+	"helicopter/internal/goldbstorage"
 	"helicopter/internal/grpc"
 	"helicopter/internal/mockstorage"
 	"helicopter/internal/rest"
 
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -40,10 +43,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	storage, err := mockstorage.NewStorage(0)
-	if err != nil {
-		log.Println("Error while creating mockstorage:", err)
-		os.Exit(1)
+	var storage core.Storage
+	if cfg.LseqDb.Host == "" || cfg.LseqDb.Port == 0 {
+		log.Println("Lseqdb host or port not provided. Running mockstorage")
+		storage, err = mockstorage.NewStorage(0)
+		if err != nil {
+			log.Println("Error while creating mockstorage:", err)
+			os.Exit(1)
+		}
+	} else {
+		logger, _ := zap.NewDevelopment()
+		storage, err = goldbstorage.NewStorage(logger, cfg)
+		if err != nil {
+			log.Println("Error while creating goldb:", err)
+			os.Exit(1)
+		}
 	}
 
 	g, _ := errgroup.WithContext(context.Background())
