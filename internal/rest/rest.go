@@ -8,6 +8,9 @@ import (
 
 	"helicopter/internal/config"
 	"helicopter/internal/core"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Rest struct {
@@ -34,6 +37,10 @@ func NewRest(cfg config.Config, storage core.Storage) *Rest {
 	rest.router.GET("/nodes", rest.GetNodes)
 	rest.router.POST("/nodes", rest.AddNode)
 
+	rest.router.StaticFile("/swagger-ui/doc.yaml", "./static/openapi.yaml")
+	url := ginSwagger.URL("/swagger-ui/doc.yaml") // The url pointing to API definition
+	rest.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
 	return rest
 }
 
@@ -44,7 +51,12 @@ func (r *Rest) Run() error {
 func (r *Rest) GetNodes(c *gin.Context) {
 	root, last := c.Query("root"), c.Query("last")
 
-	nodes, _ := r.storage.GetSubTreeNodes(c.Request.Context(), root, last)
+	nodes, err := r.storage.GetSubTreeNodes(c.Request.Context(), root, last)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
+
 	c.JSON(http.StatusOK, nodes)
 }
 
@@ -56,7 +68,11 @@ func (r *Rest) AddNode(c *gin.Context) {
 		return
 	}
 
-	node, _ := r.storage.CreateNode(c.Request.Context(), requestBody.Parent, requestBody.Value)
+	node, err := r.storage.CreateNode(c.Request.Context(), requestBody.Parent, requestBody.Value)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 
 	c.JSON(http.StatusCreated, node)
 }
