@@ -1,10 +1,11 @@
 module helicopter
 
-go 1.18
+go 1.19
 
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/lodthe/goldb v0.0.0
+	github.com/sashabaranov/go-openai v1.5.7
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.1.0

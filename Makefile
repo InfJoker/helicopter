@@ -4,6 +4,8 @@ GOVET := $(GOCMD) vet
 WD = $(shell pwd)
 BIN_DIR = $(WD)/bin
 BIN_NAME = helicopter
+BIN_MESSENGER_NAME = cli-messenger
+BIN_CHATGPT_NAME = chatgpt-bot
 EXPORT_RESULT ?= false
 
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -25,13 +27,26 @@ SOURCE_FILES := $(shell find $(SOURCE_DIRS) -type f -name '*.go') $(PROTOS)
 .PHONY: all
 all: help
 
+.PHONY: init
+init: $(SOURCE_FILES) compile_protos
+	mkdir -p $(BIN_DIR)
+	$(GOCMD) mod tidy
+
 ## Build:
 .PHONY: build
 build: $(BIN_DIR)/$(BIN_NAME) ## Build your project and put the output binary in bin/
 
-$(BIN_DIR)/$(BIN_NAME): $(SOURCE_FILES) compile_protos
-	mkdir -p $(BIN_DIR)
-	$(GOCMD) mod tidy
+ ## Build examples and put output binaries in bin/
+.PHONY: examples
+examples: $(BIN_DIR)/$(BIN_CHATGPT_NAME) $(BIN_DIR)/$(BIN_MESSENGER_NAME)
+
+$(BIN_DIR)/$(BIN_MESSENGER_NAME): init
+	$(GOCMD) build -o $(BIN_DIR)/$(BIN_MESSENGER_NAME) ./examples/cli-messenger
+
+$(BIN_DIR)/$(BIN_CHATGPT_NAME): init
+	$(GOCMD) build -o $(BIN_DIR)/$(BIN_CHATGPT_NAME) ./examples/chatgpt-bot
+
+$(BIN_DIR)/$(BIN_NAME): init
 	$(GOCMD) build -o $(BIN_DIR)/$(BIN_NAME) ./cmd/helicopter
 
 .PHONY: compile_protos
