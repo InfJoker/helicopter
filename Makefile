@@ -4,6 +4,7 @@ GOVET := $(GOCMD) vet
 WD = $(shell pwd)
 BIN_DIR = $(WD)/bin
 BIN_NAME = helicopter
+BIN_EXAMPLE_NAME = cli-messenger
 EXPORT_RESULT ?= false
 
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -25,13 +26,23 @@ SOURCE_FILES := $(shell find $(SOURCE_DIRS) -type f -name '*.go') $(PROTOS)
 .PHONY: all
 all: help
 
+.PHONY: init
+init: $(SOURCE_FILES) compile_protos
+	mkdir -p $(BIN_DIR)
+	$(GOCMD) mod tidy
+
 ## Build:
 .PHONY: build
 build: $(BIN_DIR)/$(BIN_NAME) ## Build your project and put the output binary in bin/
 
-$(BIN_DIR)/$(BIN_NAME): $(SOURCE_FILES) compile_protos
-	mkdir -p $(BIN_DIR)
-	$(GOCMD) mod tidy
+## Build:
+.PHONY: cli-messenger
+cli-messenger: $(BIN_DIR)/$(BIN_EXAMPLE_NAME) ## Build cli-messenger and put the output binary in bin/
+
+$(BIN_DIR)/$(BIN_EXAMPLE_NAME): init
+	$(GOCMD) build -o $(BIN_DIR)/$(BIN_EXAMPLE_NAME) ./examples/cli-messenger
+
+$(BIN_DIR)/$(BIN_NAME): init
 	$(GOCMD) build -o $(BIN_DIR)/$(BIN_NAME) ./cmd/helicopter
 
 .PHONY: compile_protos
