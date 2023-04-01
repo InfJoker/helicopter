@@ -13,4 +13,7 @@ type Config struct {
 		Host string `yaml:"host"`
 		Port int    `yaml:"port"`
 	} `yaml:"lseqdb"`
+	OpenapiTemplate struct {
+		Path string `yaml:"path"`
+	} `yaml:"openapi_template"`
 }

@@ -84,7 +84,16 @@ func (ms *mockStorage) CreateNode(ctx context.Context, ref string, content []byt
 func TestGetNodes(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	ms := newMockStorage()
-	restAPI := NewRest(config.Config{}, ms)
+	restAPI, err := NewRest(config.Config{
+		OpenapiTemplate: struct {
+			Path string `yaml:"path"`
+		}{
+			Path: "./../../web/openapi_template.yaml",
+		},
+	}, ms)
+	if err != nil {
+		t.Fatalf("can't create rest: %v", err)
+	}
 
 	// Define the test cases
 	testCases := []struct {
@@ -147,7 +156,16 @@ func TestAddNode(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	ms := newMockStorage()
-	rest := NewRest(config.Config{}, ms)
+	rest, err := NewRest(config.Config{
+		OpenapiTemplate: struct {
+			Path string `yaml:"path"`
+		}{
+			Path: "./../../web/openapi_template.yaml",
+		},
+	}, ms)
+	if err != nil {
+		t.Fatalf("can't create rest: %v", err)
+	}
 	router := gin.New()
 	router.POST("/nodes", rest.AddNode)
 

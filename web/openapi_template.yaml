@@ -1,0 +1,99 @@
+openapi: 3.0.0
+servers:
+  - description: Rest server
+    url: 'http://{hostname}'
+info:
+  description: This is a simple API
+  version: 0.0.3
+  title: Causal Tree API
+paths:
+  /nodes:
+    post:
+      operationId: createNode
+      description: |
+        Create a new node in the existing tree or start a new tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ref:
+                  $ref: '#/components/schemas/Node/properties/ref'
+                content:
+                  $ref: '#/components/schemas/Node/properties/content'
+      responses:
+        '201':
+          description: Node created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '400':
+          description: Invalid request body or parameters
+        '500':
+          description: Internal server error
+    get:
+      description: Get new nodes for a given tree root and last known lseq
+      parameters:
+        - name: root
+          in: query
+          required: true
+          schema:
+            type: string
+            format: string
+          description: The lseq value of the tree root
+        - name: last
+          in: query
+          required: true
+          schema:
+            type: string
+            format: string
+          description: The last lseq value known by the client in the tree
+      responses:
+        '200':
+          description: Nodes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Node'
+        '400':
+          description: Invalid query parameters
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Node:
+      type: object
+      properties:
+        lseq:
+          type: string
+          format: string
+          description: |
+            The lamport sequence number of the node.
+        ref:
+          type: string
+          format: string
+          description: |
+            The value of the "lseq" field of the node parent. If the
+            node is the root of a new tree, this field must be set to 0.
+            If the node has a direct parent (for example the node
+            represents a reply to another message in a chat), then this
+            field must be set to the "lseq" field of the parent node.
+            Otherwise it must be set to the "lseq" field of the tree
+            root node.
+        content:
+          type: array
+          items:
+            type: string
+            format: byte
+          description: |
+            Any content needed to be assosiated with the node. Can, for example,
+            represent a message, forum post or a diff. Encoded with base64.
+      required:
+        - lseq
+        - ref
+        - content
