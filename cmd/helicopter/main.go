@@ -62,7 +62,12 @@ func main() {
 
 	g, _ := errgroup.WithContext(context.Background())
 
-	rest := rest.NewRest(cfg, storage)
+	rest, err := rest.NewRest(cfg, storage)
+	if err != nil {
+		log.Println("Error while creating rest:", err)
+		os.Exit(1)
+	}
+
 	g.Go(func() error {
 		if err := rest.Run(); err != nil {
 			return fmt.Errorf("error while running rest server: %v", err)

@@ -2,7 +2,10 @@ package rest
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -19,7 +22,7 @@ type Rest struct {
 	router  *gin.Engine
 }
 
-func NewRest(cfg config.Config, storage core.Storage) *Rest {
+func NewRest(cfg config.Config, storage core.Storage) (*Rest, error) {
 	host, port := "localhost", 8080
 	if cfg.HttpServer.Host != "" {
 		host = cfg.HttpServer.Host
@@ -37,11 +40,29 @@ func NewRest(cfg config.Config, storage core.Storage) *Rest {
 	rest.router.GET("/nodes", rest.GetNodes)
 	rest.router.POST("/nodes", rest.AddNode)
 
-	rest.router.StaticFile("/swagger-ui/doc.yaml", "./static/openapi.yaml")
+	openapi_template_path := "./static"
+	if cfg.OpenapiTemplate.Path != "" {
+		openapi_template_path = cfg.OpenapiTemplate.Path
+	}
+
+	data, err := ioutil.ReadFile(openapi_template_path + "/openapi_template.yaml")
+	if err != nil {
+		return nil, fmt.Errorf("error reading file data: %v", err)
+	}
+
+	updatedData := strings.ReplaceAll(string(data), "{host}", host)
+	updatedData = strings.ReplaceAll(updatedData, "{port}", strconv.Itoa(port))
+
+	err = ioutil.WriteFile(openapi_template_path+"/openapi.yaml", []byte(updatedData), 0644)
+	if err != nil {
+		return nil, fmt.Errorf("error writing to file: %v", err)
+	}
+
+	rest.router.StaticFile("/swagger-ui/doc.yaml", openapi_template_path+"/openapi.yaml")
 	url := ginSwagger.URL("/swagger-ui/doc.yaml") // The url pointing to API definition
 	rest.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
-	return rest
+	return rest, nil
 }
 
 func (r *Rest) Run() error {

@@ -7,4 +7,5 @@ http_server:
 lseqdb:
   host: "bloom.lodthe.me"
   port: 8888
-
+openapi_template:
+  filename: "./static"
