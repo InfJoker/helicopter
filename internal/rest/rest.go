@@ -64,7 +64,7 @@ func (r *Rest) GetOpenapi(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
-	openapiSpec := strings.ReplaceAll(string(template), "{host}", host)
+	openapiSpec := strings.ReplaceAll(string(template), "{hostname}", host)
 
 	c.Data(http.StatusOK, "application/yaml; charset=utf-8", []byte(openapiSpec))
 }

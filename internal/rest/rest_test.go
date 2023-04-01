@@ -88,7 +88,7 @@ func TestGetNodes(t *testing.T) {
 		OpenapiTemplate: struct {
 			Path string `yaml:"path"`
 		}{
-			Path: "./../../static",
+			Path: "./../../web/openapi_template.yaml",
 		},
 	}, ms)
 	if err != nil {
@@ -160,7 +160,7 @@ func TestAddNode(t *testing.T) {
 		OpenapiTemplate: struct {
 			Path string `yaml:"path"`
 		}{
-			Path: "./../../static",
+			Path: "./../../web/openapi_template.yaml",
 		},
 	}, ms)
 	if err != nil {
