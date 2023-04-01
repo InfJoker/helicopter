@@ -1,7 +1,7 @@
 openapi: 3.0.0
 servers:
   - description: Rest server
-    url: 'http://{host}:{port}'
+    url: 'http://{hostname}'
 info:
   description: This is a simple API
   version: 0.0.3

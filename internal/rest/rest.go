@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,9 +16,10 @@ import (
 )
 
 type Rest struct {
-	address string
-	storage core.Storage
-	router  *gin.Engine
+	address  string
+	storage  core.Storage
+	router   *gin.Engine
+	template string
 }
 
 func NewRest(cfg config.Config, storage core.Storage) (*Rest, error) {
@@ -40,25 +40,13 @@ func NewRest(cfg config.Config, storage core.Storage) (*Rest, error) {
 	rest.router.GET("/nodes", rest.GetNodes)
 	rest.router.POST("/nodes", rest.AddNode)
 
-	openapi_template_path := "./static"
+	openapi_template_path := "./static/openapi_template.yaml"
 	if cfg.OpenapiTemplate.Path != "" {
 		openapi_template_path = cfg.OpenapiTemplate.Path
 	}
+	rest.template = openapi_template_path
 
-	data, err := ioutil.ReadFile(openapi_template_path + "/openapi_template.yaml")
-	if err != nil {
-		return nil, fmt.Errorf("error reading file data: %v", err)
-	}
-
-	updatedData := strings.ReplaceAll(string(data), "{host}", host)
-	updatedData = strings.ReplaceAll(updatedData, "{port}", strconv.Itoa(port))
-
-	err = ioutil.WriteFile(openapi_template_path+"/openapi.yaml", []byte(updatedData), 0644)
-	if err != nil {
-		return nil, fmt.Errorf("error writing to file: %v", err)
-	}
-
-	rest.router.StaticFile("/swagger-ui/doc.yaml", openapi_template_path+"/openapi.yaml")
+	rest.router.GET("/swagger-ui/doc.yaml", rest.GetOpenapi)
 	url := ginSwagger.URL("/swagger-ui/doc.yaml") // The url pointing to API definition
 	rest.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
@@ -67,6 +55,18 @@ func NewRest(cfg config.Config, storage core.Storage) (*Rest, error) {
 
 func (r *Rest) Run() error {
 	return r.router.Run(r.address)
+}
+
+func (r *Rest) GetOpenapi(c *gin.Context) {
+	host := c.Request.Host
+
+	template, err := ioutil.ReadFile(r.template)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+	openapiSpec := strings.ReplaceAll(string(template), "{host}", host)
+
+	c.Data(http.StatusOK, "application/yaml; charset=utf-8", []byte(openapiSpec))
 }
 
 func (r *Rest) GetNodes(c *gin.Context) {
