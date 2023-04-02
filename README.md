@@ -63,6 +63,8 @@ make build
 
 After starting the server, you can interact with it using any gRPC client to call the available RPC methods. For example, you can call the `GetNodes` and `AddNode` methods to retrieve and add nodes in the causal tree.
 
+The default server [config](./configs/config.yml) provides the lseqdb server address. If you wish to turn this feature off then just remove the corresponding config entry, and the server will use non-persistent in-memory [mock storage](./internal/mockstorage/mockstorage.go).
+
 ## Testing
 
 To run the tests for the project, use the following command:
