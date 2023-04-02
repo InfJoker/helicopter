@@ -4,7 +4,7 @@ servers:
     url: 'http://{hostname}'
 info:
   description: This is a simple API
-  version: 0.0.3
+  version: 0.0.4
   title: Causal Tree API
 paths:
   /nodes:
@@ -86,10 +86,8 @@ components:
             Otherwise it must be set to the "lseq" field of the tree
             root node.
         content:
-          type: array
-          items:
-            type: string
-            format: byte
+          type: string
+          format: byte
           description: |
             Any content needed to be assosiated with the node. Can, for example,
             represent a message, forum post or a diff. Encoded with base64.
