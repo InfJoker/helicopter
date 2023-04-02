@@ -1,4 +1,5 @@
 GOCMD = go
+BUILDCMD := CGO_ENABLED=0 $(GOCMD)
 GOTEST := $(GOCMD) test
 GOVET := $(GOCMD) vet
 WD = $(shell pwd)
@@ -41,13 +42,13 @@ build: $(BIN_DIR)/$(BIN_NAME) ## Build your project and put the output binary in
 examples: $(BIN_DIR)/$(BIN_CHATGPT_NAME) $(BIN_DIR)/$(BIN_MESSENGER_NAME)
 
 $(BIN_DIR)/$(BIN_MESSENGER_NAME): init
-	$(GOCMD) build -o $(BIN_DIR)/$(BIN_MESSENGER_NAME) ./examples/cli-messenger
+	$(BUILDCMD) build -o $(BIN_DIR)/$(BIN_MESSENGER_NAME) ./examples/cli-messenger
 
 $(BIN_DIR)/$(BIN_CHATGPT_NAME): init
-	$(GOCMD) build -o $(BIN_DIR)/$(BIN_CHATGPT_NAME) ./examples/chatgpt-bot
+	$(BUILDCMD) build -o $(BIN_DIR)/$(BIN_CHATGPT_NAME) ./examples/chatgpt-bot
 
 $(BIN_DIR)/$(BIN_NAME): init
-	$(GOCMD) build -o $(BIN_DIR)/$(BIN_NAME) ./cmd/helicopter
+	$(BUILDCMD) build -o $(BIN_DIR)/$(BIN_NAME) ./cmd/helicopter
 
 .PHONY: compile_protos
 compile_protos: $(PROTOS)

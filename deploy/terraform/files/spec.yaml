@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  server:
+    image: cr.yandex/${registry_id}/helicopter:latest
+    environment:
+      - GIN_MODE=release
+    restart: always
+    ports:
+      - 1228:1228
+      - 8288:8288
+    networks:
+      - mynet
+
+  chatgpt-bot:
+    image: cr.yandex/${registry_id}/chatgptbot:latest
+    environment:
+      - OPENAI_API_KEY=${openai_api_key}
+    command: ["-server_addr=server:1228"]
+    restart: always
+    depends_on:
+      - server
+    networks:
+      - mynet
+
+networks:
+  mynet:
+    driver: bridge
