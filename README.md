@@ -13,6 +13,22 @@ Helicopter Server is a project for a causal tree access management system. The s
 - Protoc compiler
 - Go and gRPC plugins for Protoc
 
+## Try with examples!
+
+We've built cli-messenger as an example of using our server. Also we run ChatGPT chatbot, which listens on chatGPT thread. You can try asking it some prompts yourself!
+
+![](https://github.com/InfJoker/helicopter/blob/main/assets/chat.gif)
+
+To build them just run:
+
+```bash
+make examples
+```
+
+By manipulating contents of the data you can create different apps on top of our causal tree data model. Just use your imagination.
+
+Also you can access our api through swagger: http://ds.sphericalpotatoinvacuum.xyz:8288/swagger/index.html. Or use grpc on ds.sphericalpotatoinvacuum.xyz:1228, refer to [proto/helicopter.proto](https://github.com/InfJoker/helicopter/blob/main/proto/helicopter.proto).
+
 ## Getting Started
 
 To get started with the Helicopter Server, follow these steps:
