@@ -16,6 +16,9 @@ import (
 
 func main() {
 	serverAddr := flag.String("server_addr", "localhost:1228", "The server address in the format of host:port")
+	flag.Parse()
+
+	log.Printf("Using server address %s\n", *serverAddr)
 	// create gRPC client
 	conn, err := grpc.Dial(*serverAddr, grpc.WithInsecure())
 	if err != nil {
