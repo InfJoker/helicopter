@@ -36,8 +36,8 @@ To get started with the Helicopter Server, follow these steps:
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/helicopter-server.git
-cd helicopter-server
+git clone https://github.com/InfJoker/helicopter.git
+cd helicopter
 ```
 
 2. Install the required dependencies:
