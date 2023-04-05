@@ -12,7 +12,7 @@ structure.
   - [Features](#features)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-    - [Altarnative installation](#altarnative-installation)
+    - [Alternative installation](#alternative-installation)
     - [Testing](#testing)
   - [Configuration](#configuration)
   - [Usage](#usage)
@@ -65,7 +65,7 @@ make build
 
 The build binary will be in the `bin` folder.
 
-### Altarnative installation
+### Alternative installation
 
 If you have docker installed you can build a docker container for the helicopter
 server using [this Dockerfile](build/server/Dockerfile):
